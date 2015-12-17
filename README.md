@@ -1,7 +1,6 @@
 ##Intro
 
-OpenSSH Public Key Format Decoders allows you to read a public ssh key.  When decoding a key it performs validation and
-so it is very handy for validation use cases.
+OpenSSH Public Key Format Decoder allows you to read public ssh keys.  Validation is performed at creation time so can also be used for validation use cases.
 
 ##Usage
 
