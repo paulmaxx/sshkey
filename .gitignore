@@ -1,0 +1,14 @@
+target
+**/log4j2-test.xml
+node_modules
+
+# Ignore vi temp files
+*.swp
+# Be Selective on IntelliJ files
+**/.idea/*
+
+!**/.idea/.name
+!**/.idea/compiler.xml
+!**/.idea/encodings.xml
+!**/.idea/modules.xml
+!**/.idea/vcs.xml
