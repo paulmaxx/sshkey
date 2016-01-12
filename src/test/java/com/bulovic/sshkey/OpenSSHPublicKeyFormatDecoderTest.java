@@ -72,7 +72,7 @@ public class OpenSSHPublicKeyFormatDecoderTest {
         OpenSSHPublicKeyFormatDecoder openSSHPublicKeyFormatDecoder = new OpenSSHPublicKeyFormatDecoder(DSA_KEY_SHORT3);
     }
 
-    @Test(expected=IllegalArgumentException.class)
+    @Test(expected=ArrayIndexOutOfBoundsException.class)
     public void testDSA5() throws Exception {
         OpenSSHPublicKeyFormatDecoder openSSHPublicKeyFormatDecoder = new OpenSSHPublicKeyFormatDecoder(DSA_KEY_BROKEN);
     }

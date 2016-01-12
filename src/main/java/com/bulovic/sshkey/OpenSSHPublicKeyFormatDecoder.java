@@ -1,5 +1,6 @@
 package com.bulovic.sshkey;
 
+import javax.xml.bind.DatatypeConverter;
 import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
@@ -7,7 +8,6 @@ import java.security.PublicKey;
 import java.security.spec.DSAPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.RSAPublicKeySpec;
-import java.util.Base64;
 
 public class OpenSSHPublicKeyFormatDecoder {
     private static final String RSA = "RSA";
@@ -38,7 +38,7 @@ public class OpenSSHPublicKeyFormatDecoder {
         if (!SSH_RSA.equals(decorativeType) && !SSH_DSS.equals(decorativeType)) {
             throw new IllegalArgumentException("unsupported key type");
         }
-        publicKeyBytes = Base64.getDecoder().decode(openSSHKeyParts[1]);
+        publicKeyBytes = DatatypeConverter.parseBase64Binary(openSSHKeyParts[1]);
         if(openSSHKeyParts.length == 3) {
             comment = openSSHKeyParts[2];
         }
@@ -49,25 +49,28 @@ public class OpenSSHPublicKeyFormatDecoder {
             throw new IllegalArgumentException("key type mismatch");
         }
         try {
-            switch (type) {
-                case SSH_RSA:
-                    BigInteger e = decodeBigInt();
-                    BigInteger m = decodeBigInt();
-                    RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(m, e);
-                    publicKey = KeyFactory.getInstance(RSA).generatePublic(rsaPublicKeySpec);
-                    break;
-                case SSH_DSS:
-                    BigInteger p = decodeBigInt();
-                    BigInteger q = decodeBigInt();
-                    BigInteger g = decodeBigInt();
-                    BigInteger y = decodeBigInt();
-                    DSAPublicKeySpec dsaPublicKeySpec = new DSAPublicKeySpec(y, p, q, g);
-                    publicKey = KeyFactory.getInstance(DSA).generatePublic(dsaPublicKeySpec);
-                    break;
-                default:
-                    throw new IllegalArgumentException("unknown type " + type);
+            if (type.equals(SSH_RSA)) {
+                BigInteger e = decodeBigInt();
+                BigInteger m = decodeBigInt();
+                RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(m, e);
+                publicKey = KeyFactory.getInstance(RSA).generatePublic(rsaPublicKeySpec);
+
+            } else if (type.equals(SSH_DSS)) {
+                BigInteger p = decodeBigInt();
+                BigInteger q = decodeBigInt();
+                BigInteger g = decodeBigInt();
+                BigInteger y = decodeBigInt();
+                DSAPublicKeySpec dsaPublicKeySpec = new DSAPublicKeySpec(y, p, q, g);
+                publicKey = KeyFactory.getInstance(DSA).generatePublic(dsaPublicKeySpec);
+
+            } else {
+                throw new IllegalArgumentException("unknown type " + type);
             }
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | ArrayIndexOutOfBoundsException e) {
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InvalidKeySpecException e) {
+            throw new IllegalArgumentException(e);
+        } catch (ArrayIndexOutOfBoundsException e) {
             throw new IllegalArgumentException(e);
         }
     }
